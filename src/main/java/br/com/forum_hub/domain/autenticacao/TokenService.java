@@ -31,6 +31,21 @@ public class TokenService {
             throw new RegraDeNegocioException("Erro ao gerar token JWT de acesso");
         }
     }
+    //Usado para revalidar o acesso após a expiração do token principal
+    public String gerarRefreshToken(Usuario usuario) {
+        try {
+            var algorithm = Algorithm.HMAC256("12345678");
+
+            return JWT.create()
+                    .withIssuer("Forum Hub") //Name of application that issued token
+                    .withSubject(usuario.getId().toString()) // User identification changed from userName to Id so tokens can be different
+                    .withExpiresAt(expiracao(120)) // Expiração um pouco mais longa que o token principal
+                    .sign(algorithm);
+
+        } catch (JWTVerificationException exception){
+            throw new RegraDeNegocioException("Erro ao gerar token JWT de acesso");
+        }
+    }
 
     public String verificarToken(String token){
 
@@ -54,5 +69,6 @@ public class TokenService {
     private Instant expiracao(Integer minutos) {
         return LocalDateTime.now().plusMinutes(minutos).toInstant(ZoneOffset.of("-05:00"));
     }
+
 
 }

@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @Entity
@@ -23,6 +24,8 @@ public class Usuario implements UserDetails {
     private String nomeUsuario;
     private String biografia;
     private String miniBiografia;
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
@@ -52,5 +55,9 @@ public class Usuario implements UserDetails {
 
     public String getMiniBiografia() {
         return miniBiografia;
+    }
+
+    public Long getId() {
+        return id;
     }
 }
