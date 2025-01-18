@@ -107,6 +107,10 @@ public class Usuario implements UserDetails {
         return email;
     }
 
+    public String getSenha() {
+        return senha;
+    }
+
     public void setNomeUsuario(String nomeUsuario) {
         this.nomeUsuario = nomeUsuario;
     }
@@ -118,13 +122,16 @@ public class Usuario implements UserDetails {
         this.email = email;
     }
 
-
     public void setMiniBiografia(String miniBiografia) {
         this.miniBiografia = miniBiografia;
     }
 
     public void setBiografia(String biografia) {
         this.biografia = biografia;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public void verificar() {

@@ -90,4 +90,21 @@ public class UsuarioService implements UserDetailsService {
 
         return usuario;
     }
+
+    @Transactional
+    public void alterarSenha(DadosEdicaoSenha dados, Usuario autor) {
+
+        if (!dados.senha().equals(dados.confirmacaoSenha())) {
+            throw new RegraDeNegocioException("Senha não bate com a confirmação!");
+        }
+
+        if (passwordEncoder.matches(dados.senha(), autor.getSenha())) {
+            throw new RegraDeNegocioException("Senha nova e atual precisam ser diferentes!");
+        }
+
+        var senhaCriptografada = passwordEncoder.encode(dados.senha());
+        var usuario = usuarioRepository.getReferenceById(autor.getId());
+        usuario.setSenha(senhaCriptografada);
+    }
+
 }

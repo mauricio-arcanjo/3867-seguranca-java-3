@@ -49,4 +49,13 @@ public class UsuarioController {
 
         return ResponseEntity.ok(new DadosListagemUsuario(usuario));
     }
+
+    @PatchMapping("/alterar-senha")
+    public ResponseEntity<String> alterarSenha(@RequestBody DadosEdicaoSenha dados,
+                                                              @AuthenticationPrincipal Usuario autor){
+
+        usuarioService.alterarSenha(dados, autor);
+
+        return ResponseEntity.ok("Senha alterada com sucesso!");
+    }
 }
