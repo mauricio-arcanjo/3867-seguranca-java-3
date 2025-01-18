@@ -56,15 +56,16 @@ public class UsuarioService implements UserDetailsService {
     }
 
     public Usuario obterUsuario(String nomeUsuario) {
-        return usuarioRepository.findByNomeUsuarioIgnoreCase(nomeUsuario).orElseThrow();
+        return usuarioRepository.findByNomeUsuarioIgnoreCaseAndVerificadoTrueAndAtivoTrue(nomeUsuario)
+                .orElseThrow(
+                        () -> new RegraDeNegocioException("Usuário não encontrado!")
+                );
     }
 
     @Transactional
-    public Usuario editarUsuario(DadosEdicaoUsuario dados, Usuario autor) {
+    public Usuario editarUsuario(DadosEdicaoUsuario dados, Usuario usuario) {
 
-        var usuario = usuarioRepository.getReferenceById(autor.getId());
-
-        if (!autor.getEmail().equalsIgnoreCase(dados.email())){
+        if (!usuario.getEmail().equalsIgnoreCase(dados.email())){
             var optionalUsuario = usuarioRepository.findByEmailIgnoreCase(dados.email());
 
             if(optionalUsuario.isPresent()){
@@ -74,7 +75,7 @@ public class UsuarioService implements UserDetailsService {
             usuario.alterarEmail(dados.email());
             emailService.enviarEmailVerificacao(usuario);
         }
-        if (!autor.getNomeUsuario().equalsIgnoreCase(dados.nomeUsuario())){
+        if (!usuario.getNomeUsuario().equalsIgnoreCase(dados.nomeUsuario())){
             var optionalUsuario = usuarioRepository.findByNomeUsuarioIgnoreCase(dados.nomeUsuario());
 
             if(optionalUsuario.isPresent()){
@@ -84,32 +85,30 @@ public class UsuarioService implements UserDetailsService {
             usuario.setNomeUsuario(dados.nomeUsuario());
         }
 
-        usuario.setNomeCompleto(dados.nomeCompleto());
-        usuario.setBiografia(dados.biografia());
-        usuario.setMiniBiografia(dados.miniBiografia());
-
-        return usuario;
+        return usuario.alterarDados(dados);
     }
 
     @Transactional
-    public void alterarSenha(DadosEdicaoSenha dados, Usuario autor) {
+    public void alterarSenha(DadosEdicaoSenha dados, Usuario logado) {
 
-        if (!dados.senha().equals(dados.confirmacaoSenha())) {
+        if(!passwordEncoder.matches(dados.senhaAtual(), logado.getPassword())){
+            throw new RegraDeNegocioException("Senha digitada não confere com senha atual!");
+        }
+
+        if (!dados.novaSenha().equals(dados.novaSenhaConfirmacao())) {
             throw new RegraDeNegocioException("Senha não bate com a confirmação!");
         }
 
-        if (passwordEncoder.matches(dados.senha(), autor.getSenha())) {
+        if (passwordEncoder.matches(dados.novaSenha(), logado.getSenha())) {
             throw new RegraDeNegocioException("Senha nova e atual precisam ser diferentes!");
         }
 
-        var senhaCriptografada = passwordEncoder.encode(dados.senha());
-        var usuario = usuarioRepository.getReferenceById(autor.getId());
-        usuario.setSenha(senhaCriptografada);
+        var senhaCriptografada = passwordEncoder.encode(dados.novaSenha());
+        logado.setSenha(senhaCriptografada);
     }
 
     @Transactional
-    public void desativar(Usuario autor) {
-        var usuario = usuarioRepository.getReferenceById(autor.getId());
-        usuario.deletarUsuario();
+    public void desativar(Usuario logado) {
+        logado.deletarUsuario();
     }
 }

@@ -67,6 +67,11 @@ public class Usuario implements UserDetails {
         return email;
     }
 
+    @Override
+    public boolean isEnabled() {
+        return ativo;
+    }
+
     public String getNome() {
         return nomeCompleto;
     }
@@ -116,24 +121,13 @@ public class Usuario implements UserDetails {
     public void setNomeUsuario(String nomeUsuario) {
         this.nomeUsuario = nomeUsuario;
     }
-    public void setNomeCompleto(String nomeCompleto) {
-        this.nomeCompleto = nomeCompleto;
-    }
 
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public void setMiniBiografia(String miniBiografia) {
-        this.miniBiografia = miniBiografia;
-    }
-
-    public void setBiografia(String biografia) {
-        this.biografia = biografia;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setSenha(String senhaCriptografada) {
+        this.senha = senhaCriptografada;
     }
 
     public void verificar() {
@@ -160,4 +154,18 @@ public class Usuario implements UserDetails {
         this.refreshToken = null;
         this.expiracaoRefreshToken = null;
     }
+
+    public Usuario alterarDados(DadosEdicaoUsuario dados) {
+        if(dados.nomeCompleto() != null){
+            this.nomeCompleto = dados.nomeCompleto();
+        }
+        if(dados.miniBiografia() != null){
+            this.miniBiografia = dados.miniBiografia();
+        }
+        if(dados.biografia() != null){
+            this.biografia = dados.biografia();
+        }
+        return this;
+    }
+
 }

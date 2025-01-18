@@ -42,27 +42,25 @@ public class UsuarioController {
     }
 
     @PutMapping("/editar-perfil")
-    public ResponseEntity<DadosListagemUsuario> editarUsuario(@RequestBody DadosEdicaoUsuario dados,
-                                                              @AuthenticationPrincipal Usuario autor){
+    public ResponseEntity<DadosListagemUsuario> editarUsuario(@RequestBody @Valid DadosEdicaoUsuario dados,
+                                                              @AuthenticationPrincipal Usuario logado){
 
-        var usuario = usuarioService.editarUsuario(dados, autor);
-
+        var usuario = usuarioService.editarUsuario(dados, logado);
         return ResponseEntity.ok(new DadosListagemUsuario(usuario));
     }
 
     @PatchMapping("/alterar-senha")
-    public ResponseEntity<String> alterarSenha(@RequestBody DadosEdicaoSenha dados,
-                                                              @AuthenticationPrincipal Usuario autor){
+    public ResponseEntity<String> alterarSenha(@RequestBody @Valid DadosEdicaoSenha dados,
+                                                              @AuthenticationPrincipal Usuario logado){
 
-        usuarioService.alterarSenha(dados, autor);
-
+        usuarioService.alterarSenha(dados, logado);
         return ResponseEntity.ok("Senha alterada com sucesso!");
     }
 
     @DeleteMapping("/desativar")
-    public ResponseEntity<String> desativar(@AuthenticationPrincipal Usuario autor){
+    public ResponseEntity<String> desativar(@AuthenticationPrincipal Usuario logado){
 
-        usuarioService.desativar(autor);
+        usuarioService.desativar(logado);
 
         return ResponseEntity.ok("Usuario desativado com sucesso!");
     }
