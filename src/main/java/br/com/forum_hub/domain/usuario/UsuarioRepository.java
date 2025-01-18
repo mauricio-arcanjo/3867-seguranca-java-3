@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    Optional<Usuario> findByEmailIgnoreCase(String username);
+    Optional<Usuario> findByEmailIgnoreCaseAndVerificadoTrue(String username); //Username nesse caso se refere ao email do usuario, é usado esse nome devido a classe UserDetails
     Optional<Usuario> findByRefreshToken(String refreshToken);
+    Optional<Usuario> findByEmailIgnoreCaseOrNomeUsuarioIgnoreCase(String email, String nomeUsuario);
 }

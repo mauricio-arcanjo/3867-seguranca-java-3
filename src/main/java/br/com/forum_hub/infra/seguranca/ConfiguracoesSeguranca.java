@@ -26,7 +26,12 @@ public class ConfiguracoesSeguranca {
     public SecurityFilterChain filtrosSeguranca(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers("/login", "/atualizar-token-jwt", "/atualizar-token-opaco").permitAll();
+                    req.requestMatchers(
+                            "/login",
+                            "/atualizar-token-jwt",
+                            "/atualizar-token-opaco",
+                            "/registrar")
+                            .permitAll();
                     req.anyRequest().authenticated();
                 })
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

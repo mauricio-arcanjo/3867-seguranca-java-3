@@ -25,11 +25,29 @@ public class Usuario implements UserDetails {
     private String nomeUsuario;
     private String biografia;
     private String miniBiografia;
+    private Boolean verificado;
+    private String token;
+    private LocalDateTime expiracaoToken;
     /*
         Atributos para implementacao do refresh token opaco (persiste no DB)
      */
     private String refreshToken;
     private LocalDateTime expiracaoRefreshToken;
+
+    public Usuario() {
+    }
+
+    public Usuario(DadosCadastroUsuario dados, String senhaCriptografada) {
+        this.nomeCompleto = dados.nomeCompleto();
+        this.email = dados.email();
+        this.senha = senhaCriptografada;
+        this.nomeUsuario = dados.nomeUsuario();
+        this.biografia = dados.biografia();
+        this.miniBiografia = dados.miniBiografia();
+        this.verificado = false;
+        this.token = UUID.randomUUID().toString();
+        this.expiracaoToken = LocalDateTime.now().plusMinutes(30);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -64,6 +82,10 @@ public class Usuario implements UserDetails {
 
     public Long getId() {
         return id;
+    }
+
+    public String getNomeCompleto() {
+        return nomeCompleto;
     }
 
     public boolean refreshTokenExpirado() {
