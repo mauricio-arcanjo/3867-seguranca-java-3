@@ -1,5 +1,6 @@
 package br.com.forum_hub.domain.usuario;
 
+import br.com.forum_hub.infra.exception.RegraDeNegocioException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -96,5 +97,18 @@ public class Usuario implements UserDetails {
         this.refreshToken = UUID.randomUUID().toString();
         this.expiracaoRefreshToken = LocalDateTime.now().plusMinutes(120);
         return refreshToken;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void verificar() {
+        if(expiracaoToken.isBefore(LocalDateTime.now())){
+            throw new RegraDeNegocioException("Link de verificação expirado!");
+        }
+        this.verificado = true;
+        this.token = null;
+        this.expiracaoToken = null;
     }
 }

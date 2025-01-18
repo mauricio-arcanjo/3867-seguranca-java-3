@@ -1,5 +1,6 @@
 package br.com.forum_hub.domain.usuario;
 
+import br.com.forum_hub.infra.email.EmailService;
 import br.com.forum_hub.infra.exception.RegraDeNegocioException;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,10 +14,12 @@ public class UsuarioService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @Override
@@ -42,6 +45,13 @@ public class UsuarioService implements UserDetailsService {
 
         var usuario = new Usuario(dados, senhaCriptografada);
 
+        emailService.enviarEmailVerificacao(usuario);
         return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void verificarEmail(String codigo) {
+        var usuario = usuarioRepository.findByToken(codigo).orElseThrow();
+        usuario.verificar();
     }
 }

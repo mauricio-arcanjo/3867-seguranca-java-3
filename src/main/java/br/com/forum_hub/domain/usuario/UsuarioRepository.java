@@ -8,4 +8,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByEmailIgnoreCaseAndVerificadoTrue(String username); //Username nesse caso se refere ao email do usuario, é usado esse nome devido a classe UserDetails
     Optional<Usuario> findByRefreshToken(String refreshToken);
     Optional<Usuario> findByEmailIgnoreCaseOrNomeUsuarioIgnoreCase(String email, String nomeUsuario);
+
+    Optional<Usuario> findByToken(String codigo);
 }

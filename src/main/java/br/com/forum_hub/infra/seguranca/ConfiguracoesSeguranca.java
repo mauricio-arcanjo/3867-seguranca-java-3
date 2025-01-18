@@ -30,7 +30,8 @@ public class ConfiguracoesSeguranca {
                             "/login",
                             "/atualizar-token-jwt",
                             "/atualizar-token-opaco",
-                            "/registrar")
+                            "/registrar",
+                            "/verificar-conta")
                             .permitAll();
                     req.anyRequest().authenticated();
                 })
