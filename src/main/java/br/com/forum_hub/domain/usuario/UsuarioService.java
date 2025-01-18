@@ -107,4 +107,9 @@ public class UsuarioService implements UserDetailsService {
         usuario.setSenha(senhaCriptografada);
     }
 
+    @Transactional
+    public void desativar(Usuario autor) {
+        var usuario = usuarioRepository.getReferenceById(autor.getId());
+        usuario.deletarUsuario();
+    }
 }

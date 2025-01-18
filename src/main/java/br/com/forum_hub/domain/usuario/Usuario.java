@@ -34,6 +34,7 @@ public class Usuario implements UserDetails {
      */
     private String refreshToken;
     private LocalDateTime expiracaoRefreshToken;
+    private boolean ativo;
 
     public Usuario() {
     }
@@ -48,6 +49,7 @@ public class Usuario implements UserDetails {
         this.verificado = false;
         this.token = UUID.randomUUID().toString();
         this.expiracaoToken = LocalDateTime.now().plusMinutes(30);
+        this.ativo = true;
     }
 
     @Override
@@ -148,5 +150,14 @@ public class Usuario implements UserDetails {
         this.verificado = false;
         this.token = UUID.randomUUID().toString();
         this.expiracaoToken = LocalDateTime.now().plusMinutes(30);
+    }
+
+    public void deletarUsuario(){
+        this.ativo = false;
+        this.token = null;
+        this.expiracaoToken = null;
+        this.verificado = false;
+        this.refreshToken = null;
+        this.expiracaoRefreshToken = null;
     }
 }

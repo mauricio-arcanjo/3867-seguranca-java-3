@@ -58,4 +58,15 @@ public class UsuarioController {
 
         return ResponseEntity.ok("Senha alterada com sucesso!");
     }
+
+    @DeleteMapping("/desativar")
+    public ResponseEntity<String> desativar(@AuthenticationPrincipal Usuario autor){
+
+        usuarioService.desativar(autor);
+
+        return ResponseEntity.ok("Usuario desativado com sucesso!");
+    }
+
+
+
 }
