@@ -1,16 +1,15 @@
 package br.com.forum_hub.domain.usuario;
 
+import br.com.forum_hub.domain.perfil.Perfil;
 import br.com.forum_hub.infra.exception.RegraDeNegocioException;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,17 +28,31 @@ public class Usuario implements UserDetails {
     private Boolean verificado;
     private String token;
     private LocalDateTime expiracaoToken;
+    private boolean ativo;
+
+    //Como cada usuario pode ter mais de um perfil é necessário criar uma lista
+    @ManyToMany (fetch = FetchType.EAGER) // Carregar os dados do perfil sempre que usuario for buscado no banco de dados
+    //Cardinalidade many to many precisa da tabela intermediária. Cada usuario pode ter varios perfis e cada perfil pode ter vários usuarios
+
+    //IMPORTANTE: NOTE QUE NÃO É NECESSÁRIO FAZER NENHUMA ANOTAÇÃO NA TABELA PERFIL !!!!!!!!!!!
+
+    @JoinTable(
+            name = "usuarios_perfis",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "perfil_id")
+    )
+    private List<Perfil> perfis = new ArrayList<>();
+
     /*
         Atributos para implementacao do refresh token opaco (persiste no DB)
      */
     private String refreshToken;
     private LocalDateTime expiracaoRefreshToken;
-    private boolean ativo;
 
     public Usuario() {
     }
 
-    public Usuario(DadosCadastroUsuario dados, String senhaCriptografada) {
+    public Usuario(DadosCadastroUsuario dados, String senhaCriptografada, Perfil perfil) {
         this.nomeCompleto = dados.nomeCompleto();
         this.email = dados.email();
         this.senha = senhaCriptografada;
@@ -50,11 +63,13 @@ public class Usuario implements UserDetails {
         this.token = UUID.randomUUID().toString();
         this.expiracaoToken = LocalDateTime.now().plusMinutes(30);
         this.ativo = true;
+        this.perfis.add(perfil);
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+
+        return perfis;
     }
 
     @Override
@@ -168,4 +183,11 @@ public class Usuario implements UserDetails {
         return this;
     }
 
+    public void adicionarPerfil(Perfil perfil) {
+        if (!perfis.contains(perfil)) {
+            this.perfis.add(perfil);
+        } else {
+            throw new RegraDeNegocioException("Usuário já possui esse perfil adicionado!");
+        }
+    }
 }
