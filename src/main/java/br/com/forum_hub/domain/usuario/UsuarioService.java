@@ -54,4 +54,8 @@ public class UsuarioService implements UserDetailsService {
         var usuario = usuarioRepository.findByToken(codigo).orElseThrow();
         usuario.verificar();
     }
+
+    public Usuario obterUsuario(String nomeUsuario) {
+        return usuarioRepository.findByNomeUsuarioIgnoreCase(nomeUsuario).orElseThrow();
+    }
 }

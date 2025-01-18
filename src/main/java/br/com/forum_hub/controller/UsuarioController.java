@@ -34,4 +34,12 @@ public class UsuarioController {
         return ResponseEntity.ok("Conta verificada com sucesso!");
     }
 
+    @GetMapping("/{nomeUsuario}")
+    public ResponseEntity<DadosListagemUsuario> obterUsuario(@PathVariable String nomeUsuario){
+
+        var usuario = usuarioService.obterUsuario(nomeUsuario);
+
+        return ResponseEntity.ok(new DadosListagemUsuario(usuario));
+
+    }
 }
