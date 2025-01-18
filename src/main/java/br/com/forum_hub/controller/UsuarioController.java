@@ -66,6 +66,14 @@ public class UsuarioController {
 
     }
 
+    @PatchMapping("remover-perfil/{id}")
+    public ResponseEntity<DadosListagemUsuario> removerPerfil(@PathVariable Long id, @RequestBody @Valid DadosPerfil dados){
+
+        var usuario = usuarioService.removerPerfil(id, dados);
+        return ResponseEntity.ok(new DadosListagemUsuario(usuario));
+
+    }
+
 
     @DeleteMapping("/desativar")
     public ResponseEntity<String> desativar(@AuthenticationPrincipal Usuario logado){

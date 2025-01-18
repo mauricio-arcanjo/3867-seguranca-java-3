@@ -133,6 +133,10 @@ public class Usuario implements UserDetails {
         return senha;
     }
 
+    public List<Perfil> getPerfis() {
+        return perfis;
+    }
+
     public void setNomeUsuario(String nomeUsuario) {
         this.nomeUsuario = nomeUsuario;
     }
@@ -189,5 +193,14 @@ public class Usuario implements UserDetails {
         } else {
             throw new RegraDeNegocioException("Usuário já possui esse perfil adicionado!");
         }
+    }
+
+    public void removerPerfil(Perfil perfil) {
+        if (perfis.contains(perfil)) {
+            this.perfis.remove(perfil);
+        } else {
+            throw new RegraDeNegocioException("Usuário não possui esse perfil atribuído!");
+        }
+
     }
 }

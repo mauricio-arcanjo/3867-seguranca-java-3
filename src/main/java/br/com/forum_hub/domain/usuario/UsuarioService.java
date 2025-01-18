@@ -128,4 +128,14 @@ public class UsuarioService implements UserDetailsService {
         usuario.adicionarPerfil(perfil);
         return usuario;
     }
+
+    @Transactional
+    public Usuario removerPerfil(Long id, DadosPerfil dados) {
+        var usuario = usuarioRepository.findById(id).orElseThrow(
+                () -> new RegraDeNegocioException("Usuário não encontrado!")
+        );
+        var perfil = perfilRepository.findByNome(dados.perfilNome());
+        usuario.removerPerfil(perfil);
+        return usuario;
+    }
 }
