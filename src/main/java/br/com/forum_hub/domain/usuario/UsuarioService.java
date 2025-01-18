@@ -58,4 +58,36 @@ public class UsuarioService implements UserDetailsService {
     public Usuario obterUsuario(String nomeUsuario) {
         return usuarioRepository.findByNomeUsuarioIgnoreCase(nomeUsuario).orElseThrow();
     }
+
+    @Transactional
+    public Usuario editarUsuario(DadosEdicaoUsuario dados, Usuario autor) {
+
+        var usuario = usuarioRepository.getReferenceById(autor.getId());
+
+        if (!autor.getEmail().equalsIgnoreCase(dados.email())){
+            var optionalUsuario = usuarioRepository.findByEmailIgnoreCase(dados.email());
+
+            if(optionalUsuario.isPresent()){
+                throw new RegraDeNegocioException("Já existe uma conta cadastrada com esse email!");
+            }
+
+            usuario.alterarEmail(dados.email());
+            emailService.enviarEmailVerificacao(usuario);
+        }
+        if (!autor.getNomeUsuario().equalsIgnoreCase(dados.nomeUsuario())){
+            var optionalUsuario = usuarioRepository.findByNomeUsuarioIgnoreCase(dados.nomeUsuario());
+
+            if(optionalUsuario.isPresent()){
+                throw new RegraDeNegocioException("Já existe uma conta cadastrada com esse nome de usuário!");
+            }
+
+            usuario.setNomeUsuario(dados.nomeUsuario());
+        }
+
+        usuario.setNomeCompleto(dados.nomeCompleto());
+        usuario.setBiografia(dados.biografia());
+        usuario.setMiniBiografia(dados.miniBiografia());
+
+        return usuario;
+    }
 }

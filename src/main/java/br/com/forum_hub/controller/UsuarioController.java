@@ -1,10 +1,9 @@
 package br.com.forum_hub.controller;
 
-import br.com.forum_hub.domain.usuario.DadosCadastroUsuario;
-import br.com.forum_hub.domain.usuario.DadosListagemUsuario;
-import br.com.forum_hub.domain.usuario.UsuarioService;
+import br.com.forum_hub.domain.usuario.*;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -40,6 +39,14 @@ public class UsuarioController {
         var usuario = usuarioService.obterUsuario(nomeUsuario);
 
         return ResponseEntity.ok(new DadosListagemUsuario(usuario));
+    }
 
+    @PutMapping("/editar-perfil")
+    public ResponseEntity<DadosListagemUsuario> editarUsuario(@RequestBody DadosEdicaoUsuario dados,
+                                                              @AuthenticationPrincipal Usuario autor){
+
+        var usuario = usuarioService.editarUsuario(dados, autor);
+
+        return ResponseEntity.ok(new DadosListagemUsuario(usuario));
     }
 }

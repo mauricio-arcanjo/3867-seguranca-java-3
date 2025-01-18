@@ -103,6 +103,30 @@ public class Usuario implements UserDetails {
         return token;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setNomeUsuario(String nomeUsuario) {
+        this.nomeUsuario = nomeUsuario;
+    }
+    public void setNomeCompleto(String nomeCompleto) {
+        this.nomeCompleto = nomeCompleto;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
+    public void setMiniBiografia(String miniBiografia) {
+        this.miniBiografia = miniBiografia;
+    }
+
+    public void setBiografia(String biografia) {
+        this.biografia = biografia;
+    }
+
     public void verificar() {
         if(expiracaoToken.isBefore(LocalDateTime.now())){
             throw new RegraDeNegocioException("Link de verificação expirado!");
@@ -110,5 +134,12 @@ public class Usuario implements UserDetails {
         this.verificado = true;
         this.token = null;
         this.expiracaoToken = null;
+    }
+
+    public void alterarEmail(String email) {
+        this.email = email;
+        this.verificado = false;
+        this.token = UUID.randomUUID().toString();
+        this.expiracaoToken = LocalDateTime.now().plusMinutes(30);
     }
 }
