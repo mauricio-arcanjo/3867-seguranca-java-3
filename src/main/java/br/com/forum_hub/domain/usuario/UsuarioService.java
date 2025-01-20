@@ -1,12 +1,12 @@
 package br.com.forum_hub.domain.usuario;
 
 import br.com.forum_hub.domain.perfil.DadosPerfil;
+import br.com.forum_hub.domain.perfil.HierarquiaService;
 import br.com.forum_hub.domain.perfil.PerfilNome;
 import br.com.forum_hub.domain.perfil.PerfilRepository;
 import br.com.forum_hub.infra.email.EmailService;
 import br.com.forum_hub.infra.exception.RegraDeNegocioException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,12 +20,14 @@ public class UsuarioService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final PerfilRepository perfilRepository;
+    private final HierarquiaService hierarquiaService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, EmailService emailService, PerfilRepository perfilRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, EmailService emailService, PerfilRepository perfilRepository, HierarquiaService hierarquiaService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
         this.perfilRepository = perfilRepository;
+        this.hierarquiaService = hierarquiaService;
     }
 
     @Override
@@ -117,6 +119,24 @@ public class UsuarioService implements UserDetailsService {
     @Transactional
     public void desativar(Usuario logado) {
         logado.deletarUsuario();
+    }
+
+    @Transactional
+    public void desativar(Long id, Usuario logado) {
+
+        var usuario = usuarioRepository.findById(id).orElseThrow(() -> new RegraDeNegocioException("Usuário não encontrado!"));
+
+        if (hierarquiaService.usuarioNaoTemPermissoes(logado, usuario, PerfilNome.ADMIN.toString())){
+            throw new RegraDeNegocioException("Você não tem permissão para desativar essa conta!");
+        }
+        usuario.deletarUsuario();
+    }
+
+    @Transactional
+    public void reativar(Long id, Usuario logado) {
+
+        var usuario = usuarioRepository.findById(id).orElseThrow(() -> new RegraDeNegocioException("Usuário não encontrado!"));
+        usuario.reativarConta();
     }
 
     @Transactional

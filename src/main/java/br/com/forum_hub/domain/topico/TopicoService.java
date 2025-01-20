@@ -1,6 +1,8 @@
 package br.com.forum_hub.domain.topico;
 
 import br.com.forum_hub.domain.curso.CursoService;
+import br.com.forum_hub.domain.perfil.HierarquiaService;
+import br.com.forum_hub.domain.perfil.PerfilNome;
 import br.com.forum_hub.domain.usuario.Usuario;
 import br.com.forum_hub.infra.exception.RegraDeNegocioException;
 import jakarta.transaction.Transactional;
@@ -14,10 +16,12 @@ public class TopicoService {
 
     private final TopicoRepository repository;
     private final CursoService cursoService;
+    private final HierarquiaService hierarquiaService;
 
-    public TopicoService(TopicoRepository repository, CursoService cursoService) {
+    public TopicoService(TopicoRepository repository, CursoService cursoService, HierarquiaService hierarquiaService) {
         this.repository = repository;
         this.cursoService = cursoService;
+        this.hierarquiaService = hierarquiaService;
     }
 
     @Transactional
@@ -38,15 +42,25 @@ public class TopicoService {
     }
 
     @Transactional
-    public Topico atualizar(DadosAtualizacaoTopico dados) {
+    public Topico atualizar(DadosAtualizacaoTopico dados, Usuario logado) {
         var topico = buscarPeloId(dados.id());
+
+        if (hierarquiaService.usuarioNaoTemPermissoes(logado, topico.getAutor(), PerfilNome.MODERADOR.toString())){
+            throw new RegraDeNegocioException("Você não tem permissão para editar esse tópico!");
+        }
+
         var curso = cursoService.buscarPeloId(dados.cursoId());
         return topico.atualizarInformacoes(dados, curso);
     }
 
     @Transactional
-    public void excluir(Long id) {
+    public void excluir(Long id, Usuario logado) {
         var topico = buscarPeloId(id);
+
+        if (hierarquiaService.usuarioNaoTemPermissoes(logado, topico.getAutor(), PerfilNome.MODERADOR.toString())){
+            throw new RegraDeNegocioException("Você não tem permissão para excluir esse tópico!");
+        }
+
         if (topico.getStatus() == Status.NAO_RESPONDIDO)
             repository.deleteById(id);
         else

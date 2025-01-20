@@ -111,16 +111,6 @@ public class Usuario implements UserDetails {
         return nomeCompleto;
     }
 
-    public boolean refreshTokenExpirado() {
-        return expiracaoRefreshToken.isBefore(LocalDateTime.now());
-    }
-
-    public String novoRefreshToken() {
-        this.refreshToken = UUID.randomUUID().toString();
-        this.expiracaoRefreshToken = LocalDateTime.now().plusMinutes(120);
-        return refreshToken;
-    }
-
     public String getToken() {
         return token;
     }
@@ -131,6 +121,10 @@ public class Usuario implements UserDetails {
 
     public String getSenha() {
         return senha;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
     }
 
     public List<Perfil> getPerfis() {
@@ -147,6 +141,16 @@ public class Usuario implements UserDetails {
 
     public void setSenha(String senhaCriptografada) {
         this.senha = senhaCriptografada;
+    }
+
+    public boolean refreshTokenExpirado() {
+        return expiracaoRefreshToken.isBefore(LocalDateTime.now());
+    }
+
+    public String novoRefreshToken() {
+        this.refreshToken = UUID.randomUUID().toString();
+        this.expiracaoRefreshToken = LocalDateTime.now().plusMinutes(120);
+        return refreshToken;
     }
 
     public void verificar() {
@@ -169,7 +173,6 @@ public class Usuario implements UserDetails {
         this.ativo = false;
         this.token = null;
         this.expiracaoToken = null;
-        this.verificado = false;
         this.refreshToken = null;
         this.expiracaoRefreshToken = null;
     }
@@ -202,5 +205,9 @@ public class Usuario implements UserDetails {
             throw new RegraDeNegocioException("Usuário não possui esse perfil atribuído!");
         }
 
+    }
+
+    public void reativarConta() {
+        this.ativo = true;
     }
 }

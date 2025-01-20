@@ -1,10 +1,14 @@
 package br.com.forum_hub.domain.resposta;
 
+import br.com.forum_hub.domain.perfil.HierarquiaService;
+import br.com.forum_hub.domain.perfil.PerfilNome;
 import br.com.forum_hub.domain.topico.Status;
 import br.com.forum_hub.domain.topico.TopicoService;
 import br.com.forum_hub.domain.usuario.Usuario;
 import br.com.forum_hub.infra.exception.RegraDeNegocioException;
 import jakarta.transaction.Transactional;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +17,13 @@ import java.util.List;
 public class RespostaService {
     private final RespostaRepository repository;
     private final TopicoService topicoService;
+    private final HierarquiaService hierarquiaService;
 
-    public RespostaService(RespostaRepository repository, TopicoService topicoService) {
+
+    public RespostaService(RespostaRepository repository, TopicoService topicoService, RoleHierarchy roleHierarchy, HierarquiaService hierarquiaService) {
         this.repository = repository;
         this.topicoService = topicoService;
+        this.hierarquiaService = hierarquiaService;
     }
 
     @Transactional
@@ -38,8 +45,13 @@ public class RespostaService {
     }
 
     @Transactional
-    public Resposta atualizar(DadosAtualizacaoResposta dados) {
+    public Resposta atualizar(DadosAtualizacaoResposta dados, Usuario logado) {
         var resposta = buscarPeloId(dados.id());
+
+        if (hierarquiaService.usuarioNaoTemPermissoes(logado, resposta.getAutor(), PerfilNome.MODERADOR.toString())){
+            throw new RegraDeNegocioException("Você não tem permissão para editar essa resposta!");
+        }
+
         return resposta.atualizarInformacoes(dados);
     }
 
@@ -48,10 +60,14 @@ public class RespostaService {
     }
 
     @Transactional
-    public Resposta marcarComoSolucao(Long id) {
+    public Resposta marcarComoSolucao(Long id, Usuario logado) {
         var resposta = buscarPeloId(id);
 
         var topico = resposta.getTopico();
+        
+        if (hierarquiaService.usuarioNaoTemPermissoes(logado, topico.getAutor(), PerfilNome.INSTRUTOR.toString()))
+            throw new RegraDeNegocioException("Você não pode marcar essa resposta como solução!");
+        
         if(topico.getStatus() == Status.RESOLVIDO)
             throw new RegraDeNegocioException("O tópico já foi solucionado! Você não pode marcar mais de uma resposta como solução.");
 
@@ -59,10 +75,15 @@ public class RespostaService {
         return resposta.marcarComoSolucao();
     }
 
+
     @Transactional
-    public void excluir(Long id) {
+    public void excluir(Long id, Usuario logado) {
         var resposta = buscarPeloId(id);
         var topico = resposta.getTopico();
+
+        if (hierarquiaService.usuarioNaoTemPermissoes(logado, resposta.getAutor(), PerfilNome.MODERADOR.toString())){
+            throw new RegraDeNegocioException("Você não tem permissão para excluir essa resposta!");
+        }
 
         repository.deleteById(id);
 
